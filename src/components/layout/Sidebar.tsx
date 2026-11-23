@@ -18,6 +18,8 @@ import {
 export type TerminalView =
   | "dashboard"
   | "asset_analysis"
+  | "vision"
+  | "forecast_lab"
   | "scanner"
   | "calendar"
   | "news"
@@ -35,8 +37,10 @@ interface SidebarProps {
 
 export function Sidebar({ currentView, onSelectView }: SidebarProps) {
   const navItems: { id: TerminalView; label: string; icon: any; badge?: string }[] = [
-    { id: "dashboard", label: "Markets", icon: LayoutDashboard },
-    { id: "asset_analysis", label: "Intelligence", icon: LineChart, badge: "AI" },
+    { id: "dashboard", label: "Command Center", icon: LayoutDashboard },
+    { id: "asset_analysis", label: "Intelligence", icon: LineChart, badge: "CORE" },
+    { id: "vision", label: "Pulse Vision", icon: Layers, badge: "AI" },
+    { id: "forecast_lab", label: "Forecast Lab", icon: FlaskConical, badge: "LAB" },
     { id: "scanner", label: "Market Scanner", icon: Radar },
     { id: "calendar", label: "Economic Calendar", icon: Calendar, badge: "LIVE" },
     { id: "news", label: "News Intelligence", icon: Newspaper },

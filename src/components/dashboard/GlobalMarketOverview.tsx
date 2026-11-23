@@ -22,6 +22,7 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { GlassCapsule } from "@/components/ui/GlassCapsule";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { MarketPrice } from "@/components/ui/MarketPrice";
+import { PulseRadarWidget } from "@/components/radar/PulseRadarWidget";
 import { formatPrice, formatPercent } from "@/lib/utils";
 
 interface GlobalMarketOverviewProps {
@@ -189,7 +190,10 @@ export function GlobalMarketOverview({
         </div>
       </GlassPanel>
 
-      {/* 2. High Confluence Watchlist */}
+      {/* 2. Pulse Radar & "What Changed?" Engine */}
+      <PulseRadarWidget />
+
+      {/* 3. High Confluence Watchlist */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

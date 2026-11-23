@@ -13,6 +13,8 @@ import { BacktestView } from "@/components/backtesting/BacktestView";
 import { PredictionHistoryView } from "@/components/history/PredictionHistoryView";
 import { IntegrationsView } from "@/components/settings/IntegrationsView";
 import { AdminView } from "@/components/admin/AdminView";
+import { PulseVisionView } from "@/components/vision/PulseVisionView";
+import { ForecastLabView } from "@/components/lab/ForecastLabView";
 import { ChartVisionModal } from "@/components/vision/ChartVisionModal";
 import { AlertsManager } from "@/components/alerts/AlertsManager";
 import { SUPPORTED_ASSETS } from "@/lib/data/supported-assets";
@@ -89,6 +91,14 @@ export default function Home() {
               asset={activeAsset}
               onOpenVisionModal={() => setIsVisionModalOpen(true)}
             />
+          )}
+
+          {currentView === "vision" && (
+            <PulseVisionView asset={activeAsset} />
+          )}
+
+          {currentView === "forecast_lab" && (
+            <ForecastLabView />
           )}
 
           {currentView === "scanner" && (

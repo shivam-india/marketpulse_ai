@@ -102,6 +102,8 @@ export function FloatingNavigation({
   ];
 
   const moreNavItems: { id: TerminalView; label: string; icon: any }[] = [
+    { id: "vision", label: "Pulse Vision & Compare", icon: Camera },
+    { id: "forecast_lab", label: "Forecast Lab & Calibration", icon: FlaskConical },
     { id: "backtesting", label: "Backtest Studio", icon: FlaskConical },
     { id: "history", label: "Forecast Track Record", icon: History },
     { id: "integrations", label: "API Integrations", icon: SlidersHorizontal },
