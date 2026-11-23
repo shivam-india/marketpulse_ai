@@ -2,18 +2,20 @@
 
 import React, { useState } from "react";
 import { SUPPORTED_ASSETS } from "@/lib/data/supported-assets";
-import { BacktestResult, Timeframe, AssetInfo } from "@/types/market";
+import { BacktestResult, Timeframe } from "@/types/market";
 import {
   FlaskConical,
   Play,
-  RotateCcw,
   TrendingUp,
   Percent,
-  ShieldCheck,
   AlertCircle,
   Clock,
   Layers,
 } from "lucide-react";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { GlassCapsule } from "@/components/ui/GlassCapsule";
+import { GlassButton } from "@/components/ui/GlassButton";
+import { formatPrice } from "@/lib/utils";
 
 export function BacktestView() {
   const [selectedAsset, setSelectedAsset] = useState<string>("XAU/USD");
@@ -52,212 +54,174 @@ export function BacktestView() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Top Banner */}
-      <div className="terminal-glass rounded-lg p-4 border border-white/10 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded bg-sky-500/10 border border-sky-500/30 text-sky-400">
-            <FlaskConical className="w-5 h-5" />
+      <GlassPanel variant="default" padding="md" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#D4AF37]/15 border border-[#D4AF37]/35 flex items-center justify-center text-[#E5C07B]">
+              <FlaskConical className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-semibold text-[#F5F5F2] tracking-tight">
+                  Walk-Forward Strategy Backtesting Studio
+                </h1>
+                <GlassCapsule variant="champagne" size="xs">
+                  ZERO LOOKAHEAD BIAS
+                </GlassCapsule>
+              </div>
+              <p className="text-xs text-[#92959D] mt-0.5">
+                Evaluates quantitative multi-factor confluence model strictly using information available at bar close.
+              </p>
+            </div>
           </div>
+
+          <GlassButton
+            variant="primary"
+            size="md"
+            onClick={handleRunBacktest}
+            disabled={loading}
+            icon={<Play className="w-4 h-4 fill-current" />}
+          >
+            {loading ? "Running Simulation..." : "Execute Walk-Forward Test"}
+          </GlassButton>
+        </div>
+
+        {/* Configuration Controls Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-3 border-t border-white/[0.06] font-tabular text-xs">
           <div>
-            <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center space-x-2">
-              <span>Walk-Forward Strategy Backtester</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
-                ZERO LOOKAHEAD BIAS
-              </span>
-            </h2>
-            <p className="text-xs text-slate-400">
-              Evaluates quantitative multi-factor confluence model strictly using information available at bar close.
-            </p>
+            <label className="text-[10px] text-[#5F636B] uppercase block mb-1">Instrument</label>
+            <select
+              value={selectedAsset}
+              onChange={(e) => setSelectedAsset(e.target.value)}
+              className="w-full bg-white/[0.04] text-[#F5F5F2] p-2 rounded-xl border border-white/[0.08] focus:outline-none"
+            >
+              {SUPPORTED_ASSETS.map((a) => (
+                <option key={a.symbol} value={a.symbol} className="bg-[#0D0F12]">
+                  {a.symbol}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[10px] text-[#5F636B] uppercase block mb-1">Timeframe</label>
+            <select
+              value={selectedTimeframe}
+              onChange={(e) => setSelectedTimeframe(e.target.value as Timeframe)}
+              className="w-full bg-white/[0.04] text-[#F5F5F2] p-2 rounded-xl border border-white/[0.08] focus:outline-none"
+            >
+              <option value="5m" className="bg-[#0D0F12]">5M</option>
+              <option value="15m" className="bg-[#0D0F12]">15M</option>
+              <option value="1h" className="bg-[#0D0F12]">1H</option>
+              <option value="4h" className="bg-[#0D0F12]">4H</option>
+              <option value="1d" className="bg-[#0D0F12]">1D</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[10px] text-[#5F636B] uppercase block mb-1">Historical Bars</label>
+            <input
+              type="number"
+              value={lookbackBars}
+              onChange={(e) => setLookbackBars(Number(e.target.value))}
+              className="w-full bg-white/[0.04] text-[#F5F5F2] p-2 rounded-xl border border-white/[0.08] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-[10px] text-[#5F636B] uppercase block mb-1">Min Confluence</label>
+            <input
+              type="number"
+              value={minConfluence}
+              onChange={(e) => setMinConfluence(Number(e.target.value))}
+              className="w-full bg-white/[0.04] text-[#F5F5F2] p-2 rounded-xl border border-white/[0.08] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-[10px] text-[#5F636B] uppercase block mb-1">Target R:R</label>
+            <input
+              type="number"
+              step="0.1"
+              value={riskReward}
+              onChange={(e) => setRiskReward(Number(e.target.value))}
+              className="w-full bg-white/[0.04] text-[#F5F5F2] p-2 rounded-xl border border-white/[0.08] focus:outline-none"
+            />
           </div>
         </div>
+      </GlassPanel>
 
-        <button
-          onClick={handleRunBacktest}
-          disabled={loading}
-          className="flex items-center space-x-2 px-4 py-2 rounded bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold font-mono text-xs transition-colors shadow-lg shadow-sky-500/20 disabled:opacity-50"
-        >
-          {loading ? (
-            <RotateCcw className="w-4 h-4 animate-spin" />
-          ) : (
-            <Play className="w-4 h-4 fill-current" />
-          )}
-          <span>{loading ? "Simulating Walk-Forward..." : "Execute Simulation"}</span>
-        </button>
-      </div>
-
-      {/* Parameter Control Panel */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 p-4 rounded-lg bg-[#090e18] border border-white/5 font-mono text-xs">
-        {/* Asset */}
-        <div>
-          <label className="text-[10px] uppercase text-slate-400 block mb-1 font-semibold">Instrument</label>
-          <select
-            value={selectedAsset}
-            onChange={(e) => setSelectedAsset(e.target.value)}
-            className="w-full bg-[#0d1424] text-white p-2 rounded border border-white/10 focus:outline-none text-xs"
-          >
-            {SUPPORTED_ASSETS.map((a) => (
-              <option key={a.id} value={a.symbol}>
-                {a.symbol} ({a.category})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Timeframe */}
-        <div>
-          <label className="text-[10px] uppercase text-slate-400 block mb-1 font-semibold">Timeframe</label>
-          <select
-            value={selectedTimeframe}
-            onChange={(e) => setSelectedTimeframe(e.target.value as Timeframe)}
-            className="w-full bg-[#0d1424] text-white p-2 rounded border border-white/10 focus:outline-none text-xs uppercase"
-          >
-            {["1m", "5m", "15m", "30m", "1h", "4h", "1d"].map((tf) => (
-              <option key={tf} value={tf}>
-                {tf.toUpperCase()}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Lookback Bars */}
-        <div>
-          <div className="flex justify-between text-[10px] uppercase text-slate-400 mb-1 font-semibold">
-            <span>Lookback:</span>
-            <span className="text-sky-400">{lookbackBars} Bars</span>
-          </div>
-          <input
-            type="range"
-            min="100"
-            max="300"
-            step="20"
-            value={lookbackBars}
-            onChange={(e) => setLookbackBars(Number(e.target.value))}
-            className="w-full accent-sky-500 cursor-pointer"
-          />
-        </div>
-
-        {/* Min Confluence */}
-        <div>
-          <div className="flex justify-between text-[10px] uppercase text-slate-400 mb-1 font-semibold">
-            <span>Min Confluence:</span>
-            <span className="text-sky-400">{minConfluence}/100</span>
-          </div>
-          <input
-            type="range"
-            min="55"
-            max="80"
-            step="1"
-            value={minConfluence}
-            onChange={(e) => setMinConfluence(Number(e.target.value))}
-            className="w-full accent-sky-500 cursor-pointer"
-          />
-        </div>
-
-        {/* Risk / Reward */}
-        <div>
-          <div className="flex justify-between text-[10px] uppercase text-slate-400 mb-1 font-semibold">
-            <span>Risk / Reward:</span>
-            <span className="text-sky-400">1 : {riskReward.toFixed(1)}</span>
-          </div>
-          <input
-            type="range"
-            min="1.0"
-            max="3.5"
-            step="0.5"
-            value={riskReward}
-            onChange={(e) => setRiskReward(Number(e.target.value))}
-            className="w-full accent-sky-500 cursor-pointer"
-          />
-        </div>
-      </div>
-
-      {/* Results Matrix */}
-      {result ? (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-            <div className="p-3 rounded-lg bg-[#0d1424] border border-white/10 font-mono">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Win Rate</div>
+      {/* Results View */}
+      {result && (
+        <div className="space-y-4 font-tabular animate-fadeIn">
+          {/* Key Metrics Summary Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <GlassPanel variant="flat" padding="sm">
+              <span className="text-[10px] text-[#5F636B] uppercase font-medium">Win Rate</span>
               <div className="text-xl font-bold text-emerald-400 mt-1">
                 {result.winRatePercent}%
               </div>
-              <div className="text-[10px] text-slate-500">
-                {result.winCount}W - {result.lossCount}L
-              </div>
-            </div>
+              <span className="text-[10px] text-[#5F636B]">
+                {result.winCount} wins / {result.totalTrades} signals
+              </span>
+            </GlassPanel>
 
-            <div className="p-3 rounded-lg bg-[#0d1424] border border-white/10 font-mono">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Profit Factor</div>
-              <div className="text-xl font-bold text-sky-400 mt-1">
+            <GlassPanel variant="flat" padding="sm">
+              <span className="text-[10px] text-[#5F636B] uppercase font-medium">Profit Factor</span>
+              <div className="text-xl font-bold text-[#E5C07B] mt-1">
                 {result.profitFactor}x
               </div>
-              <div className="text-[10px] text-slate-500">Gross Win / Loss</div>
-            </div>
+              <span className="text-[10px] text-[#5F636B]">Gross profit vs gross loss</span>
+            </GlassPanel>
 
-            <div className="p-3 rounded-lg bg-[#0d1424] border border-white/10 font-mono">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Sharpe Ratio</div>
-              <div className="text-xl font-bold text-white mt-1">
-                {result.sharpeRatio}
-              </div>
-              <div className="text-[10px] text-slate-500">Risk-Adjusted</div>
-            </div>
-
-            <div className="p-3 rounded-lg bg-[#0d1424] border border-white/10 font-mono">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Max Drawdown</div>
+            <GlassPanel variant="flat" padding="sm">
+              <span className="text-[10px] text-[#5F636B] uppercase font-medium">Max Drawdown</span>
               <div className="text-xl font-bold text-rose-400 mt-1">
                 -{result.maxDrawdownPercent}%
               </div>
-              <div className="text-[10px] text-slate-500">Peak-to-Trough</div>
-            </div>
+              <span className="text-[10px] text-[#5F636B]">Peak-to-trough decline</span>
+            </GlassPanel>
 
-            <div className="p-3 rounded-lg bg-[#0d1424] border border-white/10 font-mono">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Expectancy</div>
-              <div className="text-xl font-bold text-emerald-300 mt-1">
-                +{result.expectancyPips} pips
+            <GlassPanel variant="flat" padding="sm">
+              <span className="text-[10px] text-[#5F636B] uppercase font-medium">Sharpe Ratio</span>
+              <div className="text-xl font-bold text-[#F5F5F2] mt-1">
+                {result.sharpeRatio}
               </div>
-              <div className="text-[10px] text-slate-500">Per Evaluated Trade</div>
-            </div>
-
-            <div className="p-3 rounded-lg bg-[#0d1424] border border-white/10 font-mono">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Total Signals</div>
-              <div className="text-xl font-bold text-white mt-1">
-                {result.totalTrades}
-              </div>
-              <div className="text-[10px] text-slate-500">Walk-Forward Bars</div>
-            </div>
+              <span className="text-[10px] text-[#5F636B]">Expectancy: {result.expectancyPips} pips</span>
+            </GlassPanel>
           </div>
 
-          {/* Trades Log Table */}
-          <div className="terminal-glass rounded-lg border border-white/10 overflow-hidden font-mono">
-            <div className="p-3 border-b border-white/10 bg-[#070c16] flex justify-between items-center text-xs">
-              <span className="font-bold text-white uppercase tracking-wider">
-                Simulated Walk-Forward Execution Log ({result.tradesList.length} Trades)
+          {/* Trade Log Table */}
+          <GlassPanel variant="default" padding="none" className="overflow-hidden">
+            <div className="p-4 border-b border-white/[0.06] flex items-center justify-between">
+              <span className="font-semibold text-xs text-[#F5F5F2] uppercase">
+                Simulated Signal Execution History
               </span>
-              <span className="text-slate-400 text-[11px]">
-                {result.periodStart} ── {result.periodEnd}
+              <span className="text-xs text-[#5F636B]">
+                Asset: {result.assetSymbol} • {result.timeframe.toUpperCase()}
               </span>
             </div>
 
-            <div className="overflow-x-auto max-h-80">
+            <div className="overflow-x-auto max-h-96">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-white/5 text-[10px] text-slate-400 uppercase bg-black/40">
-                    <th className="py-2 px-3">Entry Time</th>
-                    <th className="py-2 px-3">Direction</th>
-                    <th className="py-2 px-3">Entry Price</th>
-                    <th className="py-2 px-3">Exit Price</th>
-                    <th className="py-2 px-3">Return</th>
-                    <th className="py-2 px-3">Pips</th>
-                    <th className="py-2 px-3">Confluence</th>
-                    <th className="py-2 px-3 text-right">Outcome</th>
+                  <tr className="border-b border-white/[0.06] text-[10px] text-[#5F636B] uppercase bg-white/[0.01]">
+                    <th className="py-2.5 px-3">Entry Time</th>
+                    <th className="py-2.5 px-3">Direction</th>
+                    <th className="py-2.5 px-3">Entry Price</th>
+                    <th className="py-2.5 px-3">Exit Price</th>
+                    <th className="py-2.5 px-3">Outcome</th>
+                    <th className="py-2.5 px-3 text-right">Return %</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-white/[0.04]">
                   {result.tradesList.map((trade) => {
                     const isWin = trade.outcome === "win";
                     return (
                       <tr key={trade.id} className="hover:bg-white/[0.02]">
-                        <td className="py-2 px-3 text-slate-400 text-[11px]">
+                        <td className="py-2.5 px-3 text-[#92959D]">
                           {new Date(trade.entryTime).toLocaleString([], {
                             month: "short",
                             day: "numeric",
@@ -265,40 +229,24 @@ export function BacktestView() {
                             minute: "2-digit",
                           })}
                         </td>
-                        <td className="py-2 px-3">
-                          <span
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
-                              trade.direction === "long"
-                                ? "bg-emerald-500/20 text-emerald-300"
-                                : "bg-rose-500/20 text-rose-300"
-                            }`}
-                          >
+                        <td className="py-2.5 px-3 font-bold uppercase">
+                          <span className={trade.direction === "long" ? "text-emerald-400" : "text-rose-400"}>
                             {trade.direction}
                           </span>
                         </td>
-                        <td className="py-2 px-3 text-white font-bold">{trade.entryPrice}</td>
-                        <td className="py-2 px-3 text-slate-300">{trade.exitPrice}</td>
-                        <td className="py-2 px-3">
-                          <span className={isWin ? "text-emerald-400 font-bold" : "text-rose-400 font-bold"}>
-                            {trade.returnPercent > 0 ? "+" : ""}
-                            {trade.returnPercent}%
-                          </span>
+                        <td className="py-2.5 px-3 text-[#F5F5F2]">
+                          ${formatPrice(trade.entryPrice)}
                         </td>
-                        <td className="py-2 px-3 text-slate-300">
-                          {trade.pips > 0 ? "+" : ""}
-                          {trade.pips}
+                        <td className="py-2.5 px-3 text-[#F5F5F2]">
+                          ${formatPrice(trade.exitPrice)}
                         </td>
-                        <td className="py-2 px-3 text-sky-400 font-bold">{trade.confluenceScore}</td>
-                        <td className="py-2 px-3 text-right">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                              isWin
-                                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                                : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                            }`}
-                          >
-                            {trade.outcome}
-                          </span>
+                        <td className="py-2.5 px-3">
+                          <GlassCapsule variant={isWin ? "bull" : "bear"} size="xs">
+                            {trade.outcome.toUpperCase()}
+                          </GlassCapsule>
+                        </td>
+                        <td className={`py-2.5 px-3 text-right font-bold ${isWin ? "text-emerald-400" : "text-rose-400"}`}>
+                          {trade.returnPercent > 0 ? "+" : ""}{trade.returnPercent}%
                         </td>
                       </tr>
                     );
@@ -306,20 +254,9 @@ export function BacktestView() {
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-      ) : (
-        <div className="terminal-glass rounded-lg p-12 text-center border border-white/10 space-y-3 font-mono">
-          <FlaskConical className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-300 uppercase">
-            No Backtest Executed In Current Session
-          </h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Select an instrument, timeframe, and risk parameters above, then click "Execute Simulation" to test the confluence model without lookahead bias.
-          </p>
+          </GlassPanel>
         </div>
       )}
     </div>
   );
 }
-

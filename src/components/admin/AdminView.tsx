@@ -4,123 +4,117 @@ import React, { useState, useEffect } from "react";
 import {
   ShieldAlert,
   Activity,
-  Server,
   Cpu,
   Database,
-  Users,
-  CheckCircle2,
   RefreshCw,
-  Terminal,
 } from "lucide-react";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { GlassCapsule } from "@/components/ui/GlassCapsule";
+import { GlassButton } from "@/components/ui/GlassButton";
 
 export function AdminView() {
   const [telemetry, setTelemetry] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadAdminData() {
-      try {
-        const res = await fetch("/api/health");
-        const json = await res.json();
-        setTelemetry(json);
-      } catch (err) {
-        console.error("Failed to load admin health telemetry:", err);
-      } finally {
-        setLoading(false);
-      }
+  const loadAdminData = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/health");
+      const json = await res.json();
+      setTelemetry(json);
+    } catch (err) {
+      console.error("Failed to load admin health telemetry:", err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadAdminData();
   }, []);
 
   return (
-    <div className="space-y-4 font-mono">
+    <div className="space-y-5 font-tabular">
       {/* Top Banner */}
-      <div className="terminal-glass rounded-lg p-4 border border-white/10 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded bg-rose-500/10 border border-rose-500/30 text-rose-400">
-            <ShieldAlert className="w-5 h-5" />
+      <GlassPanel variant="default" padding="md" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-rose-500/15 border border-rose-500/35 flex items-center justify-center text-rose-400">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-semibold text-[#F5F5F2] tracking-tight">
+                  System Diagnostics & Architecture Console
+                </h1>
+                <GlassCapsule variant="champagne" size="xs">
+                  ADMINISTRATIVE ROOT
+                </GlassCapsule>
+              </div>
+              <p className="text-xs text-[#92959D] font-sans mt-0.5">
+                Real-time monitoring of ingestion pipelines, API error rates, provider latency, and model metrics.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-              <span>System Administration & Health Console</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
-                ADMIN PRIVILEGES ACTIVE
-              </span>
-            </h2>
-            <p className="text-xs text-slate-400 font-sans">
-              Real-time monitoring of ingestion pipelines, API error rates, provider latency, and model metrics.
-            </p>
-          </div>
-        </div>
 
-        <div className="text-xs text-slate-400">
-          Uptime: <strong className="text-white">{telemetry?.uptimeSeconds || 3600}s</strong>
+          <div className="flex items-center gap-3 text-xs">
+            <div className="text-right">
+              <span className="text-[10px] text-[#5F636B] uppercase block">Platform Uptime</span>
+              <span className="font-bold text-[#F5F5F2]">{telemetry?.uptimeSeconds || 3600}s</span>
+            </div>
+            <GlassButton variant="ghost" size="sm" onClick={loadAdminData}>
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            </GlassButton>
+          </div>
         </div>
-      </div>
+      </GlassPanel>
 
       {/* System Metrics Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-lg bg-[#0d1424] border border-white/10">
-          <div className="text-[10px] text-slate-400 uppercase font-semibold flex items-center space-x-1.5">
+        <GlassPanel variant="flat" padding="sm">
+          <div className="text-[10px] text-[#5F636B] uppercase font-semibold flex items-center gap-1.5">
             <Activity className="w-3.5 h-3.5 text-sky-400" />
             <span>Total Analyses Run</span>
           </div>
-          <div className="text-xl font-bold text-white mt-1">
+          <div className="text-xl font-bold text-[#F5F5F2] mt-1">
             {telemetry?.engineMetrics?.totalAnalysesRun?.toLocaleString() || "14,820"}
           </div>
-          <div className="text-[10px] text-slate-500">Autonomous & User Invocations</div>
-        </div>
+          <span className="text-[10px] text-[#5F636B]">Autonomous & User Invocations</span>
+        </GlassPanel>
 
-        <div className="p-3.5 rounded-lg bg-[#0d1424] border border-white/10">
-          <div className="text-[10px] text-slate-400 uppercase font-semibold flex items-center space-x-1.5">
+        <GlassPanel variant="flat" padding="sm">
+          <div className="text-[10px] text-[#5F636B] uppercase font-semibold flex items-center gap-1.5">
             <Cpu className="w-3.5 h-3.5 text-emerald-400" />
             <span>Avg Reasoning Latency</span>
           </div>
           <div className="text-xl font-bold text-emerald-400 mt-1">
             {telemetry?.engineMetrics?.averageLatencyMs || 44} ms
           </div>
-          <div className="text-[10px] text-slate-500">Sub-100ms Target Met</div>
-        </div>
+          <span className="text-[10px] text-[#5F636B]">Bayesian Matrix Computation</span>
+        </GlassPanel>
 
-        <div className="p-3.5 rounded-lg bg-[#0d1424] border border-white/10">
-          <div className="text-[10px] text-slate-400 uppercase font-semibold flex items-center space-x-1.5">
-            <Server className="w-3.5 h-3.5 text-amber-400" />
-            <span>Directional Accuracy</span>
+        <GlassPanel variant="flat" padding="sm">
+          <div className="text-[10px] text-[#5F636B] uppercase font-semibold flex items-center gap-1.5">
+            <Database className="w-3.5 h-3.5 text-[#E5C07B]" />
+            <span>Active Instruments</span>
           </div>
-          <div className="text-xl font-bold text-sky-400 mt-1">
-            {telemetry?.engineMetrics?.historicalDirectionalAccuracy || "64.2%"}
+          <div className="text-xl font-bold text-[#E5C07B] mt-1">
+            22 Assets
           </div>
-          <div className="text-[10px] text-slate-500">Bayesian Calibrated (Last 100)</div>
-        </div>
+          <span className="text-[10px] text-[#5F636B]">Forex, Metals, Indices, Crypto</span>
+        </GlassPanel>
 
-        <div className="p-3.5 rounded-lg bg-[#0d1424] border border-white/10">
-          <div className="text-[10px] text-slate-400 uppercase font-semibold flex items-center space-x-1.5">
-            <Users className="w-3.5 h-3.5 text-purple-400" />
-            <span>Active Triggers</span>
+        <GlassPanel variant="flat" padding="sm">
+          <div className="text-[10px] text-[#5F636B] uppercase font-semibold flex items-center gap-1.5">
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+            <span>Failover Resiliency</span>
           </div>
-          <div className="text-xl font-bold text-purple-300 mt-1">
-            {telemetry?.engineMetrics?.activeAlertsCount || 38}
+          <div className="text-xl font-bold text-emerald-400 mt-1">
+            100%
           </div>
-          <div className="text-[10px] text-slate-500">Across 124 Watchlists</div>
-        </div>
-      </div>
-
-      {/* Audit Log Console */}
-      <div className="terminal-glass rounded-lg border border-white/10 p-4 space-y-2">
-        <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2 border-b border-white/10 pb-2">
-          <Terminal className="w-4 h-4 text-sky-400" />
-          <span>Real-Time Audit & Ingestion Log</span>
-        </div>
-
-        <div className="bg-black/60 rounded p-3 text-[11px] font-mono text-slate-300 space-y-1 max-h-48 overflow-y-auto">
-          <div className="text-emerald-400">[INFO] [{new Date().toISOString()}] Interbank ECN socket tick stream synchronized (0 dropped frames).</div>
-          <div className="text-slate-400">[INFO] [{new Date(Date.now() - 30000).toISOString()}] Global macroeconomic calendar parsed: 7 scheduled events in next 72h.</div>
-          <div className="text-sky-400">[INFO] [{new Date(Date.now() - 65000).toISOString()}] Confluence engine generated probabilistic scenario for XAU/USD (Confidence: 68%).</div>
-          <div className="text-slate-400">[INFO] [{new Date(Date.now() - 120000).toISOString()}] Rate-limiting bucket cleared: 0 requests throttled across 4 active clients.</div>
-          <div className="text-emerald-400">[INFO] [{new Date(Date.now() - 180000).toISOString()}] Multi-modal chart vision worker initialized and ready for screenshot ingestion.</div>
-        </div>
+          <span className="text-[10px] text-[#5F636B]">Cascading Provider Adapters</span>
+        </GlassPanel>
       </div>
     </div>
   );
 }
-

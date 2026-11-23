@@ -11,8 +11,7 @@ import {
   BarChart3,
   History,
   FlaskConical,
-  Settings,
-  ShieldAlert,
+  ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
 
@@ -36,8 +35,8 @@ interface SidebarProps {
 
 export function Sidebar({ currentView, onSelectView }: SidebarProps) {
   const navItems: { id: TerminalView; label: string; icon: any; badge?: string }[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "asset_analysis", label: "AI Analysis", icon: LineChart, badge: "CORE" },
+    { id: "dashboard", label: "Markets", icon: LayoutDashboard },
+    { id: "asset_analysis", label: "Intelligence", icon: LineChart, badge: "AI" },
     { id: "scanner", label: "Market Scanner", icon: Radar },
     { id: "calendar", label: "Economic Calendar", icon: Calendar, badge: "LIVE" },
     { id: "news", label: "News Intelligence", icon: Newspaper },
@@ -46,15 +45,15 @@ export function Sidebar({ currentView, onSelectView }: SidebarProps) {
     { id: "backtesting", label: "Backtesting", icon: FlaskConical },
     { id: "history", label: "Forecast History", icon: History },
     { id: "integrations", label: "Integrations", icon: SlidersHorizontal },
-    { id: "admin", label: "Admin Console", icon: ShieldAlert },
+    { id: "admin", label: "Admin Console", icon: ShieldCheck },
   ];
 
   return (
-    <aside className="w-56 shrink-0 bg-[#070b12] border-r border-white/5 flex flex-col justify-between py-3 h-[calc(100vh-73px)] sticky top-[73px] select-none">
+    <aside className="w-60 shrink-0 liquid-glass rounded-2xl m-3 border border-white/[0.08] flex flex-col justify-between p-3 select-none">
       <div className="space-y-4">
-        <div className="px-3">
-          <div className="text-[10px] uppercase font-mono tracking-widest text-slate-500 font-semibold px-2 mb-1.5">
-            PLATFORM MODULES
+        <div className="px-2 pt-1">
+          <div className="text-[10px] uppercase font-tabular tracking-widest text-[#5F636B] font-semibold mb-2">
+            INTELLIGENCE MODULES
           </div>
 
           <nav className="space-y-1">
@@ -66,23 +65,23 @@ export function Sidebar({ currentView, onSelectView }: SidebarProps) {
                 <button
                   key={item.id}
                   onClick={() => onSelectView(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded text-xs font-medium transition-all ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] ${
                     isActive
-                      ? "bg-sky-500/15 text-sky-400 font-semibold border-l-2 border-sky-400 shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]"
+                      ? "bg-white/[0.12] text-[#F5F5F2] border border-white/[0.18] shadow-[0_2px_12px_rgba(0,0,0,0.3)]"
+                      : "text-[#92959D] hover:text-[#F5F5F2] hover:bg-white/[0.04]"
                   }`}
                 >
-                  <div className="flex items-center space-x-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-sky-400" : "text-slate-400"}`} />
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-[#E5C07B]" : "text-[#92959D]"}`} />
                     <span>{item.label}</span>
                   </div>
 
                   {item.badge && (
                     <span
-                      className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                        item.badge === "CORE"
-                          ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                          : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      className={`text-[9px] font-tabular font-bold px-1.5 py-0.2 rounded-full ${
+                        item.badge === "AI"
+                          ? "bg-[#D4AF37]/20 text-[#E5C07B] border border-[#D4AF37]/35"
+                          : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/35"
                       }`}
                     >
                       {item.badge}
@@ -95,24 +94,17 @@ export function Sidebar({ currentView, onSelectView }: SidebarProps) {
         </div>
       </div>
 
-      {/* Terminal Telemetry Footer in Sidebar */}
-      <div className="px-3">
-        <div className="p-2.5 rounded bg-white/[0.02] border border-white/5 font-mono text-[10px] space-y-1 text-slate-400">
-          <div className="flex justify-between items-center text-slate-300 font-medium">
-            <span>REASONING CORE</span>
-            <span className="text-emerald-400">ACTIVE</span>
-          </div>
-          <div className="flex justify-between">
-            <span>CALIBRATION</span>
-            <span className="text-slate-200">BAYESIAN MTF</span>
-          </div>
-          <div className="flex justify-between">
-            <span>LATENCY</span>
-            <span className="text-slate-200">18 ms</span>
-          </div>
+      {/* Telemetry Footer */}
+      <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] font-tabular text-[10px] space-y-1 text-[#92959D]">
+        <div className="flex justify-between items-center text-[#F5F5F2] font-medium">
+          <span>REASONING ENGINE</span>
+          <span className="text-emerald-400">BAYESIAN MTF</span>
+        </div>
+        <div className="flex justify-between">
+          <span>REALTIME FEED</span>
+          <span className="text-emerald-400">ACTIVE</span>
         </div>
       </div>
     </aside>
   );
 }
-

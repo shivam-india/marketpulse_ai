@@ -6,19 +6,18 @@ import {
   Calendar,
   Clock,
   AlertTriangle,
-  Flame,
   Filter,
   Globe,
   ChevronDown,
-  Info,
 } from "lucide-react";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { GlassCapsule } from "@/components/ui/GlassCapsule";
 
 export function EconomicCalendarView() {
   const [events, setEvents] = useState<EconomicEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("all");
   const [selectedImportance, setSelectedImportance] = useState<string>("all");
-  const [selectedEventModal, setSelectedEventModal] = useState<EconomicEvent | null>(null);
 
   useEffect(() => {
     async function fetchCalendar() {
@@ -45,263 +44,139 @@ export function EconomicCalendarView() {
     return true;
   });
 
-  const getImportanceBadge = (importance: ImportanceLevel) => {
-    switch (importance) {
-      case "critical":
-        return "bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold";
-      case "high":
-        return "bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold";
-      case "medium":
-        return "bg-sky-500/20 text-sky-300 border-sky-500/40";
-      default:
-        return "bg-slate-700/30 text-slate-400 border-slate-700";
-    }
-  };
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Top Banner */}
-      <div className="terminal-glass rounded-lg p-4 border border-white/10 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded bg-sky-500/10 border border-sky-500/30 text-sky-400">
-            <Calendar className="w-5 h-5" />
+      <GlassPanel variant="default" padding="md" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#D4AF37]/15 border border-[#D4AF37]/35 flex items-center justify-center text-[#E5C07B]">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-semibold text-[#F5F5F2] tracking-tight">
+                  Global Sovereign Economic Calendar
+                </h1>
+                <GlassCapsule variant="champagne" size="xs">
+                  FOREX FACTORY FEED
+                </GlassCapsule>
+              </div>
+              <p className="text-xs text-[#92959D] mt-0.5">
+                Tracks scheduled central-bank interest rate decisions, inflation gauges, and sovereign data prints.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center space-x-2">
-              <span>Global Macroeconomic Calendar</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                LIVE FEED • FOREX FACTORY
-              </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30">
-                HIGH VOLATILITY RADAR
-              </span>
-            </h2>
-            <p className="text-xs text-slate-400">
-              Tracks scheduled central-bank announcements, inflation reports, and macroeconomic releases.
-            </p>
+
+          {/* Currency Tabs */}
+          <div className="flex items-center gap-1 bg-white/[0.03] p-1 rounded-xl border border-white/[0.06] font-tabular text-xs">
+            {currencies.map((curr) => (
+              <button
+                key={curr}
+                onClick={() => setSelectedCurrency(curr)}
+                className={`px-2.5 py-1 rounded-lg uppercase font-semibold transition-all ${
+                  selectedCurrency === curr
+                    ? "bg-white/[0.14] text-[#F5F5F2]"
+                    : "text-[#92959D] hover:text-[#F5F5F2]"
+                }`}
+              >
+                {curr}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Currency Quick Tabs */}
-        <div className="flex items-center space-x-1 font-mono text-xs bg-[#0c1220] p-1 rounded border border-white/5">
-          {currencies.map((curr) => (
-            <button
-              key={curr}
-              onClick={() => setSelectedCurrency(curr)}
-              className={`px-2 py-0.5 rounded uppercase font-semibold transition-colors ${
-                selectedCurrency === curr
-                  ? "bg-sky-500 text-white font-bold"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              {curr}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Filter Selector Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-[#090e18] border border-white/5 font-mono text-xs">
-        <div className="flex items-center space-x-1">
-          <span className="text-slate-500 mr-2 uppercase text-[10px] font-semibold">Importance:</span>
+        {/* Importance Filter */}
+        <div className="flex items-center gap-2 pt-2 border-t border-white/[0.06] font-tabular text-xs">
+          <span className="text-[#5F636B] text-[11px] uppercase font-semibold mr-1">Impact:</span>
           {["all", "critical", "high", "medium", "low"].map((imp) => (
             <button
               key={imp}
               onClick={() => setSelectedImportance(imp)}
-              className={`px-2 py-0.5 rounded uppercase transition-colors text-[11px] ${
+              className={`px-3 py-1 rounded-xl capitalize font-medium transition-all ${
                 selectedImportance === imp
-                  ? "bg-white/15 text-white font-bold"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-white/[0.14] text-[#F5F5F2] border border-white/[0.2]"
+                  : "text-[#92959D] hover:text-[#F5F5F2]"
               }`}
             >
               {imp}
             </button>
           ))}
         </div>
+      </GlassPanel>
 
-        <div className="text-[11px] text-slate-400">
-          Showing {filtered.length} scheduled macroeconomic releases
-        </div>
-      </div>
-
-      {/* Events Table */}
-      <div className="terminal-glass rounded-lg border border-white/10 overflow-hidden">
+      {/* Events Table Container */}
+      <GlassPanel variant="default" padding="none" className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left font-mono text-xs">
+          <table className="w-full text-left font-tabular text-xs">
             <thead>
-              <tr className="border-b border-white/10 bg-[#070c16] text-[10px] text-slate-400 uppercase">
-                <th className="py-2.5 px-3">Time & Date</th>
-                <th className="py-2.5 px-3">Currency</th>
-                <th className="py-2.5 px-3">Event Description</th>
-                <th className="py-2.5 px-3">Importance</th>
-                <th className="py-2.5 px-3">Forecast</th>
-                <th className="py-2.5 px-3">Previous</th>
-                <th className="py-2.5 px-3">Expected Volatility</th>
-                <th className="py-2.5 px-3 text-right">Details</th>
+              <tr className="border-b border-white/[0.06] text-[10px] text-[#5F636B] uppercase tracking-wider bg-white/[0.01]">
+                <th className="py-3 px-4">Date & Time</th>
+                <th className="py-3 px-3">Currency</th>
+                <th className="py-3 px-4">Event Title</th>
+                <th className="py-3 px-3">Impact</th>
+                <th className="py-3 px-3 text-right">Actual</th>
+                <th className="py-3 px-3 text-right">Forecast</th>
+                <th className="py-3 px-4 text-right">Previous</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
-              {filtered.length === 0 ? (
+            <tbody className="divide-y divide-white/[0.04]">
+              {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400 font-mono">
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                      <Calendar className="w-8 h-8 text-slate-500" />
-                      <div className="text-sm font-bold text-slate-300">Live data unavailable</div>
-                      <p className="text-xs text-slate-500 max-w-sm">
-                        No economic calendar releases found matching the selected currency or importance filters.
-                      </p>
-                    </div>
+                  <td colSpan={7} className="py-8 text-center text-[#5F636B]">
+                    Loading sovereign calendar events...
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-[#5F636B]">
+                    No economic events match the current filter.
                   </td>
                 </tr>
               ) : (
-                filtered.map((event) => {
-                const nowSec = Math.floor(Date.now() / 1000);
-                const diffHours = Math.max(0, Math.round((event.timestamp - nowSec) / 3600));
-
-                return (
-                  <tr
-                    key={event.id}
-                    onClick={() => setSelectedEventModal(event)}
-                    className="hover:bg-white/[0.03] transition-colors cursor-pointer group"
-                  >
-                    <td className="py-3 px-3">
-                      <div className="font-bold text-white">{event.time}</div>
-                      <div className="text-[10px] text-slate-400">{event.date}</div>
+                filtered.map((evt, i) => (
+                  <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 px-4 text-[#92959D] whitespace-nowrap">
+                      {evt.date} • <strong className="text-[#F5F5F2]">{evt.time}</strong>
                     </td>
-
                     <td className="py-3 px-3">
-                      <span className="px-1.5 py-0.5 rounded bg-white/5 text-slate-200 font-bold border border-white/10">
-                        {event.currency}
+                      <span className="font-bold text-[#F5F5F2] bg-white/[0.05] px-2 py-0.5 rounded-md border border-white/[0.08]">
+                        {evt.currency}
                       </span>
                     </td>
-
-                    <td className="py-3 px-3 max-w-xs">
-                      <div className="font-bold text-white group-hover:text-sky-300 transition-colors">
-                        {event.title}
-                      </div>
-                      <div className="text-[11px] text-slate-400 truncate">
-                        {event.country} • {event.macroSignificance}
-                      </div>
+                    <td className="py-3 px-4 font-sans font-medium text-[#F5F5F2] max-w-sm">
+                      {evt.title}
                     </td>
-
                     <td className="py-3 px-3">
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] uppercase border ${getImportanceBadge(
-                          event.importance
-                        )}`}
+                      <GlassCapsule
+                        variant={
+                          evt.importance === "critical"
+                            ? "bear"
+                            : evt.importance === "high"
+                            ? "amber"
+                            : "neutral"
+                        }
+                        size="xs"
                       >
-                        {event.importance}
-                      </span>
+                        {evt.importance.toUpperCase()}
+                      </GlassCapsule>
                     </td>
-
-                    <td className="py-3 px-3 font-bold text-sky-400">
-                      {event.forecast || "-"}
+                    <td className="py-3 px-3 text-right font-bold text-[#F5F5F2]">
+                      {evt.actual || "—"}
                     </td>
-
-                    <td className="py-3 px-3 text-slate-400">
-                      {event.previous || "-"}
+                    <td className="py-3 px-3 text-right text-[#92959D]">
+                      {evt.forecast || "—"}
                     </td>
-
-                    <td className="py-3 px-3">
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
-                          event.expectedVolatility === "extreme"
-                            ? "bg-rose-500/20 text-rose-300"
-                            : event.expectedVolatility === "high"
-                            ? "bg-amber-500/20 text-amber-300"
-                            : "bg-slate-800 text-slate-300"
-                        }`}
-                      >
-                        {event.expectedVolatility}
-                      </span>
-                    </td>
-
-                    <td className="py-3 px-3 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedEventModal(event);
-                        }}
-                        className="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px] font-bold"
-                      >
-                        View Impact
-                      </button>
+                    <td className="py-3 px-4 text-right text-[#5F636B]">
+                      {evt.previous || "—"}
                     </td>
                   </tr>
-                );
-              }))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Event Detail Modal */}
-      {selectedEventModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0b101c] border border-white/15 rounded-lg w-full max-w-lg p-6 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-start border-b border-white/10 pb-3">
-              <div>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold uppercase">
-                  {selectedEventModal.currency} Macro Event
-                </span>
-                <h3 className="text-sm font-bold text-white font-mono mt-1">
-                  {selectedEventModal.title}
-                </h3>
-              </div>
-              <button
-                onClick={() => setSelectedEventModal(null)}
-                className="text-slate-400 hover:text-white"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-2 text-xs font-mono">
-              <div className="p-3 rounded bg-white/[0.03] border border-white/5 space-y-1">
-                <div className="text-[10px] text-slate-400 uppercase font-semibold">Macroeconomic Significance</div>
-                <p className="text-slate-300 leading-relaxed">{selectedEventModal.macroSignificance}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="p-2 rounded bg-white/5">
-                  <div className="text-[10px] text-slate-400">Previous Value</div>
-                  <div className="font-bold text-white text-sm">{selectedEventModal.previous || "-"}</div>
-                </div>
-                <div className="p-2 rounded bg-sky-500/10 border border-sky-500/20">
-                  <div className="text-[10px] text-sky-400">Consensus Forecast</div>
-                  <div className="font-bold text-sky-300 text-sm">{selectedEventModal.forecast || "-"}</div>
-                </div>
-              </div>
-
-              <div>
-                <div className="text-[10px] text-slate-400 uppercase font-semibold mb-1">
-                  Primary Affected Instruments:
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedEventModal.affectedAssets.map((asset) => (
-                    <span
-                      key={asset}
-                      className="px-2 py-0.5 rounded bg-white/10 text-slate-200 text-[11px] font-bold"
-                    >
-                      {asset}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-white/10 flex justify-end">
-              <button
-                onClick={() => setSelectedEventModal(null)}
-                className="px-4 py-1.5 rounded bg-white/10 hover:bg-white/15 text-white text-xs font-mono font-medium"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </GlassPanel>
     </div>
   );
 }
-

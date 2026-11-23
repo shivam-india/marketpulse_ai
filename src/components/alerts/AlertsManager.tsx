@@ -4,7 +4,10 @@ import React, { useState } from "react";
 import { INITIAL_ALERTS } from "@/lib/storage/store";
 import { UserAlert, AssetInfo } from "@/types/market";
 import { SUPPORTED_ASSETS } from "@/lib/data/supported-assets";
-import { Bell, Plus, Trash2, X, CheckCircle, ShieldAlert } from "lucide-react";
+import { Bell, Plus, Trash2, X, CheckCircle } from "lucide-react";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { GlassCapsule } from "@/components/ui/GlassCapsule";
+import { GlassButton } from "@/components/ui/GlassButton";
 
 interface AlertsManagerProps {
   isOpen: boolean;
@@ -39,7 +42,6 @@ export function AlertsManager({ isOpen, onClose, activeAsset }: AlertsManagerPro
     setAlerts([newAlert, ...alerts]);
     setMessage("");
 
-    // Request browser notification permission if available
     if (typeof window !== "undefined" && "Notification" in window) {
       if (Notification.permission === "default") {
         Notification.requestPermission();
@@ -58,47 +60,47 @@ export function AlertsManager({ isOpen, onClose, activeAsset }: AlertsManagerPro
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm font-mono">
-      <div className="bg-[#0b101c] border border-white/15 rounded-lg w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl p-6 space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn font-tabular">
+      <div className="liquid-glass-elevated rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto p-6 space-y-5 border border-white/[0.14] shadow-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-white/10 pb-3">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded bg-sky-500/10 border border-sky-500/30 text-sky-400">
+        <div className="flex items-start justify-between border-b border-white/[0.08] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#D4AF37]/15 border border-[#D4AF37]/35 flex items-center justify-center text-[#E5C07B]">
               <Bell className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                Confluence & Volatility Alert Engine
+              <h2 className="text-sm font-semibold text-[#F5F5F2] uppercase tracking-wider">
+                Autonomous Confluence & Volatility Alerts
               </h2>
-              <p className="text-xs text-slate-400 font-sans">
+              <p className="text-xs text-[#92959D] font-sans mt-0.5">
                 Set autonomous triggers for structural breaks, confidence spikes, and high-impact macro releases.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-white transition-colors"
+            className="p-1 rounded-lg text-[#92959D] hover:text-[#F5F5F2] hover:bg-white/[0.08] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Create Alert Form */}
-        <form onSubmit={handleCreateAlert} className="p-3.5 rounded-lg bg-[#070b14] border border-white/10 space-y-3">
-          <div className="text-[10px] uppercase font-bold text-sky-400 tracking-wider">
+        <form onSubmit={handleCreateAlert} className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-3">
+          <span className="text-xs font-semibold text-[#F5F5F2] uppercase block">
             Create New Market Trigger
-          </div>
+          </span>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
             <div>
-              <label className="text-[10px] text-slate-400 uppercase block mb-1">Asset</label>
+              <label className="text-[10px] text-[#5F636B] uppercase block mb-1">Asset</label>
               <select
                 value={newSymbol}
                 onChange={(e) => setNewSymbol(e.target.value)}
-                className="w-full bg-[#0d1424] text-white p-2 rounded border border-white/10 text-xs"
+                className="w-full bg-white/[0.04] text-[#F5F5F2] p-2 rounded-xl border border-white/[0.08] focus:outline-none"
               >
                 {SUPPORTED_ASSETS.map((a) => (
-                  <option key={a.id} value={a.symbol}>
+                  <option key={a.symbol} value={a.symbol} className="bg-[#0D0F12]">
                     {a.symbol}
                   </option>
                 ))}
@@ -106,91 +108,73 @@ export function AlertsManager({ isOpen, onClose, activeAsset }: AlertsManagerPro
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-400 uppercase block mb-1">Trigger Type</label>
+              <label className="text-[10px] text-[#5F636B] uppercase block mb-1">Trigger Type</label>
               <select
                 value={alertType}
                 onChange={(e) => setAlertType(e.target.value as any)}
-                className="w-full bg-[#0d1424] text-white p-2 rounded border border-white/10 text-xs"
+                className="w-full bg-white/[0.04] text-[#F5F5F2] p-2 rounded-xl border border-white/[0.08] focus:outline-none"
               >
-                <option value="confidence_threshold">Confidence Threshold (%)</option>
-                <option value="price_cross">Price Level Cross</option>
-                <option value="bos_detected">Break of Structure (BOS)</option>
-                <option value="liquidity_sweep">Liquidity Sweep Event</option>
-                <option value="economic_event">Pre-Macro Event (15m Prior)</option>
+                <option value="confidence_threshold" className="bg-[#0D0F12]">Confidence Threshold</option>
+                <option value="break_of_structure" className="bg-[#0D0F12]">Break of Structure (BOS)</option>
+                <option value="liquidity_pool_sweep" className="bg-[#0D0F12]">Liquidity Pool Sweep</option>
+                <option value="order_flow_imbalance" className="bg-[#0D0F12]">Order Flow Imbalance</option>
               </select>
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-400 uppercase block mb-1">Target Threshold</label>
+              <label className="text-[10px] text-[#5F636B] uppercase block mb-1">Threshold / Level</label>
               <input
                 type="text"
                 value={targetValue}
                 onChange={(e) => setTargetValue(e.target.value)}
-                placeholder="e.g. 75, 2700.0, BOS_BULL"
-                className="w-full bg-[#0d1424] text-white p-2 rounded border border-white/10 text-xs"
+                placeholder="e.g. 75 or price"
+                className="w-full bg-white/[0.04] text-[#F5F5F2] p-2 rounded-xl border border-white/[0.08] focus:outline-none"
               />
             </div>
           </div>
 
-          <div>
-            <label className="text-[10px] text-slate-400 uppercase block mb-1">Custom Alert Note (Optional)</label>
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="e.g. Alert me when Gold bullish confluence exceeds 75%"
-              className="w-full bg-[#0d1424] text-white p-2 rounded border border-white/10 text-xs"
-            />
-          </div>
-
           <div className="flex justify-end pt-1">
-            <button
-              type="submit"
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Activate Trigger</span>
-            </button>
+            <GlassButton variant="primary" size="sm" type="submit" icon={<Plus className="w-3.5 h-3.5" />}>
+              Arm Alert
+            </GlassButton>
           </div>
         </form>
 
         {/* Active Alerts List */}
         <div className="space-y-2">
-          <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-            Active User Alerts ({alerts.length})
+          <div className="text-[11px] uppercase text-[#5F636B] font-semibold">
+            Configured Triggers ({alerts.length})
           </div>
 
-          <div className="space-y-1.5">
-            {alerts.map((alert) => (
+          <div className="space-y-1.5 max-h-56 overflow-y-auto">
+            {alerts.map((al) => (
               <div
-                key={alert.id}
-                className="flex items-center justify-between p-3 rounded bg-white/[0.02] border border-white/5 text-xs font-mono"
+                key={al.id}
+                className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] text-xs"
               >
-                <div className="space-y-0.5">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-bold text-white">{alert.assetSymbol}</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-semibold uppercase">
-                      {alert.type.replace(/_/g, " ")}: {alert.targetValue}
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-400">{alert.message}</div>
+                <div className="flex items-center gap-2.5">
+                  <span className="font-bold text-[#F5F5F2]">{al.assetSymbol}</span>
+                  <GlassCapsule variant="neutral" size="xs">
+                    {al.type.replace(/_/g, " ")}
+                  </GlassCapsule>
+                  <span className="text-[#92959D] font-sans text-xs">{al.message}</span>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleToggleAlert(alert.id)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      alert.isActive
-                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                        : "bg-slate-800 text-slate-500"
+                    onClick={() => handleToggleAlert(al.id)}
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                      al.isActive
+                        ? "bg-emerald-500/20 text-emerald-300"
+                        : "bg-white/[0.05] text-[#5F636B]"
                     }`}
                   >
-                    {alert.isActive ? "ACTIVE" : "PAUSED"}
+                    {al.isActive ? "ARMED" : "MUTED"}
                   </button>
 
                   <button
-                    onClick={() => handleDeleteAlert(alert.id)}
-                    className="p-1 hover:text-rose-400 text-slate-500 transition-colors"
+                    onClick={() => handleDeleteAlert(al.id)}
+                    className="p-1 rounded-lg text-[#5F636B] hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -199,18 +183,7 @@ export function AlertsManager({ isOpen, onClose, activeAsset }: AlertsManagerPro
             ))}
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="pt-3 border-t border-white/10 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 rounded bg-white/10 hover:bg-white/15 text-white text-xs font-medium"
-          >
-            Close
-          </button>
-        </div>
       </div>
     </div>
   );
 }
-

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Header } from "@/components/layout/Header";
+import { FloatingNavigation } from "@/components/layout/FloatingNavigation";
 import { TickerBar } from "@/components/layout/TickerBar";
-import { Sidebar, TerminalView } from "@/components/layout/Sidebar";
+import { TerminalView } from "@/components/layout/Sidebar";
 import { GlobalMarketOverview } from "@/components/dashboard/GlobalMarketOverview";
 import { AssetAnalysisView } from "@/components/asset/AssetAnalysisView";
 import { MarketScanner } from "@/components/scanner/MarketScanner";
@@ -17,6 +17,7 @@ import { ChartVisionModal } from "@/components/vision/ChartVisionModal";
 import { AlertsManager } from "@/components/alerts/AlertsManager";
 import { SUPPORTED_ASSETS } from "@/lib/data/supported-assets";
 import { AssetInfo, EconomicEvent, MarketNewsItem } from "@/types/market";
+import { ShieldCheck, Info } from "lucide-react";
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<TerminalView>("dashboard");
@@ -55,31 +56,26 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#06090e] text-[#f1f5f9] flex flex-col font-mono selection:bg-sky-500/30">
-      {/* Institutional Top Navigation Header */}
-      <Header
+    <div className="min-h-screen bg-[#08090B] text-[#F5F5F2] flex flex-col font-sans selection:bg-[#D4AF37]/25 selection:text-[#F5F5F2]">
+      {/* Floating Apple Liquid Glass Navigation */}
+      <FloatingNavigation
+        currentView={currentView}
+        onSelectView={(view) => setCurrentView(view)}
         activeAsset={activeAsset}
         onSelectAsset={handleSelectAsset}
         onOpenVisionModal={() => setIsVisionModalOpen(true)}
         onOpenAlertsModal={() => setIsAlertsModalOpen(true)}
       />
 
-      {/* Real-time Ticker Ribbon */}
+      {/* Real-time Liquid Ticker Ribbon */}
       <TickerBar
         activeSymbol={activeAsset.symbol}
         onSelectAsset={handleSelectAsset}
       />
 
       {/* Main Terminal Workspace Layout */}
-      <div className="flex flex-1 relative">
-        {/* Left Navigation Sidebar */}
-        <Sidebar
-          currentView={currentView}
-          onSelectView={(view) => setCurrentView(view)}
-        />
-
-        {/* Dynamic Terminal Content Area */}
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto max-w-[1720px] mx-auto w-full">
+      <main className="flex-1 px-3 sm:px-6 py-4 max-w-[1720px] mx-auto w-full transition-all duration-300">
+        <div key={currentView} className="animate-fadeIn">
           {currentView === "dashboard" && (
             <GlobalMarketOverview
               onSelectAsset={handleSelectAsset}
@@ -105,13 +101,13 @@ export default function Home() {
 
           {currentView === "liquidity" && (
             <div className="space-y-4">
-              <div className="terminal-glass rounded-lg p-4 border border-white/10 flex items-center justify-between">
+              <div className="liquid-glass rounded-2xl p-4 sm:p-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                  <h2 className="text-sm font-semibold text-[#F5F5F2] tracking-wide uppercase font-tabular">
                     Liquidity Intelligence Deep Dive: {activeAsset.symbol}
                   </h2>
-                  <p className="text-xs text-slate-400 font-sans">
-                    Resting stop liquidity, equal highs/lows, and volume depth profile.
+                  <p className="text-xs text-[#92959D] mt-0.5">
+                    Resting stop liquidity, equal highs/lows, and order-book depth profile.
                   </p>
                 </div>
               </div>
@@ -124,12 +120,12 @@ export default function Home() {
 
           {currentView === "order_flow" && (
             <div className="space-y-4">
-              <div className="terminal-glass rounded-lg p-4 border border-white/10 flex items-center justify-between">
+              <div className="liquid-glass rounded-2xl p-4 sm:p-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                  <h2 className="text-sm font-semibold text-[#F5F5F2] tracking-wide uppercase font-tabular">
                     Order Flow & Footprint Delta Matrix: {activeAsset.symbol}
                   </h2>
-                  <p className="text-xs text-slate-400 font-sans">
+                  <p className="text-xs text-[#92959D] mt-0.5">
                     Cumulative Volume Delta (CVD), absorption signals, and footprint clusters.
                   </p>
                 </div>
@@ -148,16 +144,28 @@ export default function Home() {
           {currentView === "integrations" && <IntegrationsView />}
 
           {currentView === "admin" && <AdminView />}
-        </main>
-      </div>
+        </div>
+      </main>
 
-      {/* Global Modals */}
+      {/* Institutional Platform Footer */}
+      <footer className="mt-auto px-4 sm:px-6 py-6 border-t border-white/[0.06] text-xs text-[#5F636B] font-tabular max-w-[1720px] mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
+          <span>MarketPulse AI Pro v2.4 • Institutional Financial Research Terminal</span>
+        </div>
+        <div className="text-center sm:text-right text-[11px] text-[#5F636B] max-w-xl">
+          Analytical platform only. All outlooks are probabilistic models, not guarantees or financial advice.
+        </div>
+      </footer>
+
+      {/* Multimodal AI Chart Vision Modal */}
       <ChartVisionModal
         isOpen={isVisionModalOpen}
         onClose={() => setIsVisionModalOpen(false)}
         activeSymbol={activeAsset.symbol}
       />
 
+      {/* Alerts Manager Modal */}
       <AlertsManager
         isOpen={isAlertsModalOpen}
         onClose={() => setIsAlertsModalOpen(false)}
@@ -166,4 +174,3 @@ export default function Home() {
     </div>
   );
 }
-

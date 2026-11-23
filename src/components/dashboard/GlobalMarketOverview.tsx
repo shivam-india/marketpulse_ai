@@ -1,24 +1,28 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { SUPPORTED_ASSETS } from "@/lib/data/supported-assets";
 import { AssetInfo, EconomicEvent, MarketNewsItem } from "@/types/market";
 import {
-  Activity,
-  ArrowDownRight,
-  ArrowUpRight,
-  Calendar,
-  Clock,
-  Compass,
-  Flame,
   Globe,
-  Layers,
-  Newspaper,
-  Radar,
-  Sparkles,
   TrendingUp,
-  Zap,
+  TrendingDown,
+  ArrowUpRight,
+  ArrowDownRight,
+  Sparkles,
+  Calendar,
+  Newspaper,
+  Layers,
+  ChevronRight,
+  Activity,
+  Droplets,
+  ShieldCheck,
 } from "lucide-react";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { GlassCapsule } from "@/components/ui/GlassCapsule";
+import { GlassButton } from "@/components/ui/GlassButton";
+import { MarketPrice } from "@/components/ui/MarketPrice";
+import { formatPrice, formatPercent } from "@/lib/utils";
 
 interface GlobalMarketOverviewProps {
   onSelectAsset: (asset: AssetInfo) => void;
@@ -31,9 +35,10 @@ export function GlobalMarketOverview({
   upcomingEvents,
   topNews,
 }: GlobalMarketOverviewProps) {
-  const [liveAssets, setLiveAssets] = React.useState<AssetInfo[]>(SUPPORTED_ASSETS);
+  const [liveAssets, setLiveAssets] = useState<AssetInfo[]>(SUPPORTED_ASSETS);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchQuotes() {
       try {
         const res = await fetch("/api/markets/quotes");
@@ -50,406 +55,434 @@ export function GlobalMarketOverview({
     return () => clearInterval(interval);
   }, []);
 
-  // Highlighting key categories
+  // Filtered asset sets
   const indices = liveAssets.filter((a) => a.category === "index").slice(0, 4);
   const forex = liveAssets.filter((a) => a.category === "forex").slice(0, 4);
-  const commodities = liveAssets.filter((a) => a.category === "commodity").slice(0, 3);
-  const crypto = liveAssets.filter((a) => a.category === "crypto").slice(0, 3);
+  const commodities = liveAssets.filter((a) => a.category === "commodity").slice(0, 4);
+  const crypto = liveAssets.filter((a) => a.category === "crypto").slice(0, 4);
 
-  // High confluence watchlist items
+  // High Confluence AI Watchlist items
   const aiWatchlist = [
     {
       asset: liveAssets.find((a) => a.symbol === "XAU/USD") || SUPPORTED_ASSETS[0],
-      bias: "BULLISH",
-      confidence: 68,
-      confluenceScore: 82,
+      bias: "BULLISH" as const,
+      confidence: 78,
+      confluenceScore: 84,
+      liquidity: "Overhead buyside pool at $4,095",
       catalyst: "Holding higher lows; DXY softening at resistance",
     },
     {
       asset: liveAssets.find((a) => a.symbol === "BTC/USD") || SUPPORTED_ASSETS[0],
-      bias: "BULLISH",
-      confidence: 74,
-      confluenceScore: 86,
+      bias: "BULLISH" as const,
+      confidence: 82,
+      confluenceScore: 88,
+      liquidity: "Aggressive absorption at $91,200",
       catalyst: "Institutional ETF net inflows + NQ high-beta tech alignment",
     },
     {
       asset: liveAssets.find((a) => a.symbol === "EUR/USD") || SUPPORTED_ASSETS[0],
-      bias: "BEARISH",
+      bias: "BEARISH" as const,
       confidence: 71,
       confluenceScore: 76,
+      liquidity: "Sellside liquidity tapped at 1.0520",
       catalyst: "Eurozone growth drag; transatlantic rate spread widening",
     },
     {
       asset: liveAssets.find((a) => a.symbol === "WTI Crude") || SUPPORTED_ASSETS[0],
-      bias: "NEUTRAL",
-      confidence: 54,
-      confluenceScore: 54,
+      bias: "NEUTRAL" as const,
+      confidence: 58,
+      confluenceScore: 61,
+      liquidity: "Equilibrium range between $68.50-$71.20",
       catalyst: "OPEC+ cuts balanced by seasonal demand softness",
     },
   ];
 
   return (
-    <div className="space-y-5 font-mono">
-      {/* Global Regime & Macro Status Banner */}
-      <div className="terminal-glass rounded-lg p-4 border border-white/10 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded bg-sky-500/10 border border-sky-500/30 text-sky-400">
+    <div className="space-y-6">
+      {/* 1. Global Macro Environment & Regime Radar */}
+      <GlassPanel variant="default" padding="md" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#D4AF37]/15 border border-[#D4AF37]/35 flex items-center justify-center text-[#E5C07B] shadow-[0_0_24px_-4px_rgba(212,175,55,0.3)]">
               <Globe className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-                <span>Global Macro Environment & Regime Radar</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  RISK-ON EQUITIES / COMMODITY DIVERGENCE
-                </span>
-              </h2>
-              <p className="text-xs text-slate-400 font-sans">
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-base font-semibold text-[#F5F5F2] tracking-tight">
+                  Global Macro Environment & Regime Radar
+                </h1>
+                <GlassCapsule variant="champagne" size="xs">
+                  CONSTRUCTIVE RISK-ON
+                </GlassCapsule>
+              </div>
+              <p className="text-xs text-[#92959D] mt-0.5">
                 Cross-asset synthesis of sovereign yields, currency differentials, index momentum, and central-bank policy expectations.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3 text-xs">
+          <div className="flex items-center gap-4 text-xs font-tabular">
             <div className="text-right">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Macro Risk Appetite</div>
-              <div className="text-sm font-bold text-sky-400">CONSTRUCTIVE (68/100)</div>
+              <span className="text-[10px] uppercase text-[#5F636B] tracking-wider block">
+                Macro Confluence
+              </span>
+              <span className="text-sm font-bold text-[#E5C07B]">
+                78 / 100
+              </span>
             </div>
           </div>
         </div>
 
         {/* Macro Gauge Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-          <div className="p-2 rounded bg-white/[0.02] border border-white/5">
-            <div className="text-[10px] text-slate-400">DXY DOLLAR INDEX</div>
-            <div className="text-sm font-bold text-slate-200 mt-0.5">104.72 (-0.24%)</div>
-            <div className="text-[10px] text-emerald-400">Softening Near Resistance</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-tabular">
+          <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-colors">
+            <div className="text-[10px] text-[#92959D] tracking-wider uppercase font-medium">
+              DXY Dollar Index
+            </div>
+            <div className="text-base font-bold text-[#F5F5F2] mt-1">
+              104.72
+              <span className="text-xs text-rose-400 ml-1.5 font-normal">-0.24%</span>
+            </div>
+            <div className="text-[10px] text-emerald-400 mt-0.5 truncate">
+              Softening Near Resistance
+            </div>
           </div>
 
-          <div className="p-2 rounded bg-white/[0.02] border border-white/5">
-            <div className="text-[10px] text-slate-400">US 10Y BENCHMARK YIELD</div>
-            <div className="text-sm font-bold text-slate-200 mt-0.5">4.38% (-4 bps)</div>
-            <div className="text-[10px] text-sky-400">Rate Compression Window</div>
+          <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-colors">
+            <div className="text-[10px] text-[#92959D] tracking-wider uppercase font-medium">
+              US 10Y Yield
+            </div>
+            <div className="text-base font-bold text-[#F5F5F2] mt-1">
+              4.38%
+              <span className="text-xs text-emerald-400 ml-1.5 font-normal">-4 bps</span>
+            </div>
+            <div className="text-[10px] text-sky-400 mt-0.5 truncate">
+              Rate Compression Window
+            </div>
           </div>
 
-          <div className="p-2 rounded bg-white/[0.02] border border-white/5">
-            <div className="text-[10px] text-slate-400">CBOE VIX VOLATILITY</div>
-            <div className="text-sm font-bold text-emerald-400 mt-0.5">14.82 (-3.4%)</div>
-            <div className="text-[10px] text-slate-400">Low Hedging Demand</div>
+          <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-colors">
+            <div className="text-[10px] text-[#92959D] tracking-wider uppercase font-medium">
+              CBOE VIX Volatility
+            </div>
+            <div className="text-base font-bold text-emerald-400 mt-1">
+              14.82
+              <span className="text-xs text-emerald-400 ml-1.5 font-normal">-3.4%</span>
+            </div>
+            <div className="text-[10px] text-[#92959D] mt-0.5 truncate">
+              Low Hedging Demand
+            </div>
           </div>
 
-          <div className="p-2 rounded bg-white/[0.02] border border-white/5">
-            <div className="text-[10px] text-slate-400">GLOBAL SESSION OVERLAP</div>
-            <div className="text-sm font-bold text-sky-300 mt-0.5">PEAK LIQUIDITY</div>
-            <div className="text-[10px] text-slate-400">London & New York Active</div>
+          <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-colors">
+            <div className="text-[10px] text-[#92959D] tracking-wider uppercase font-medium">
+              Gold / Silver Ratio
+            </div>
+            <div className="text-base font-bold text-[#F5F5F2] mt-1">
+              84.2
+              <span className="text-xs text-sky-400 ml-1.5 font-normal">Expansion</span>
+            </div>
+            <div className="text-[10px] text-[#E5C07B] mt-0.5 truncate">
+              Safe Haven Premium
+            </div>
           </div>
         </div>
-      </div>
+      </GlassPanel>
 
-      {/* AI High-Confluence Watchlist Grid */}
-      <div className="space-y-2">
+      {/* 2. High Confluence Watchlist */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-sky-400" />
-            <span>AI Probabilistic Watchlist & Confluence Radar</span>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#92959D] font-tabular">
+              High-Confluence Market Setups
+            </h2>
           </div>
-          <span className="text-[10px] text-slate-400">Multi-factor model highest-alignment assets</span>
+          <span className="text-[11px] text-[#5F636B] font-tabular">
+            Multi-timeframe Bayesian scores &gt; 70
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {aiWatchlist.map((item) => {
             const isBull = item.bias === "BULLISH";
             const isBear = item.bias === "BEARISH";
 
             return (
-              <div
-                key={item.asset.id}
+              <button
+                key={item.asset.symbol}
                 onClick={() => onSelectAsset(item.asset)}
-                className="terminal-glass rounded-lg p-3.5 border border-white/10 hover:border-sky-500/40 transition-all cursor-pointer group space-y-2"
+                className="liquid-glass-interactive rounded-2xl p-4 text-left flex flex-col justify-between border border-white/[0.08] hover:border-white/[0.18] transition-all group"
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-sm font-bold text-white group-hover:text-sky-300 transition-colors">
-                      {item.asset.symbol}
-                    </span>
-                    <div className="text-[10px] text-slate-400">{item.asset.name}</div>
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div>
+                      <div className="font-tabular font-bold text-base text-[#F5F5F2] group-hover:text-[#E5C07B] transition-colors">
+                        {item.asset.symbol}
+                      </div>
+                      <div className="text-[11px] text-[#92959D] truncate">
+                        {item.asset.name}
+                      </div>
+                    </div>
+                    <GlassCapsule
+                      variant={isBull ? "bull" : isBear ? "bear" : "amber"}
+                      size="xs"
+                    >
+                      {item.bias}
+                    </GlassCapsule>
                   </div>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      isBull
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : isBear
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                        : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                    }`}
-                  >
-                    {item.bias}
-                  </span>
+
+                  <div className="my-2.5">
+                    <MarketPrice
+                      price={item.asset.currentPrice}
+                      changePercent={item.asset.change24hPercent}
+                      size="md"
+                    />
+                  </div>
+
+                  <p className="text-xs text-[#92959D] leading-relaxed line-clamp-2 mt-2">
+                    {item.catalyst}
+                  </p>
                 </div>
 
-                <div className="flex items-baseline justify-between pt-1">
-                  <span className="text-base font-bold text-white font-mono">
-                    {item.asset.currentPrice.toFixed(item.asset.decimals)}
-                  </span>
-                  <span className="text-xs font-bold text-sky-400">
-                    Confluence: {item.confluenceScore}/100
-                  </span>
+                <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-tabular">
+                  <div className="text-[11px] text-[#5F636B]">
+                    Confluence: <span className="text-[#F5F5F2] font-semibold">{item.confluenceScore}%</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] text-[#D4AF37] group-hover:translate-x-0.5 transition-transform">
+                    <span>Inspect</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </div>
                 </div>
-
-                <div className="text-[11px] text-slate-400 line-clamp-2 font-sans pt-1 border-t border-white/5">
-                  {item.catalyst}
-                </div>
-
-                <div className="text-[10px] text-sky-400 font-bold text-right pt-1 flex items-center justify-end space-x-1">
-                  <span>Open Deep Outlook</span>
-                  <span>→</span>
-                </div>
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* Asset Class Overview Grids: Indices, Forex, Commodities, Crypto */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Indices */}
-        <div className="terminal-glass rounded-lg p-4 border border-white/10 space-y-3">
-          <div className="flex justify-between items-center border-b border-white/10 pb-2">
-            <span className="text-xs font-bold text-white uppercase tracking-wider">
-              Major Global Equity Indices
-            </span>
-            <span className="text-[10px] text-slate-400">Cash & Futures Benchmarks</span>
-          </div>
-          <div className="space-y-1.5">
-            {indices.map((asset) => {
-              const isUp = asset.change24hPercent >= 0;
-              return (
-                <div
-                  key={asset.id}
-                  onClick={() => onSelectAsset(asset)}
-                  className="flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/[0.06] transition-colors cursor-pointer text-xs"
-                >
-                  <div>
-                    <span className="font-bold text-white">{asset.symbol}</span>
-                    <span className="text-slate-400 text-[11px] ml-2">{asset.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-slate-200">
-                      {asset.currentPrice.toFixed(asset.decimals)}
-                    </span>
-                    <span
-                      className={`ml-2 font-bold ${
-                        isUp ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      {isUp ? "+" : ""}
-                      {asset.change24hPercent}%
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+      {/* 3. Market Categories Matrix */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-[#92959D]" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#92959D] font-tabular">
+              Market Intelligence Matrix
+            </h2>
           </div>
         </div>
 
-        {/* Forex Majors */}
-        <div className="terminal-glass rounded-lg p-4 border border-white/10 space-y-3">
-          <div className="flex justify-between items-center border-b border-white/10 pb-2">
-            <span className="text-xs font-bold text-white uppercase tracking-wider">
-              G10 Currencies & Interbank FX
-            </span>
-            <span className="text-[10px] text-slate-400">Institutional ECN Feed</span>
-          </div>
-          <div className="space-y-1.5">
-            {forex.map((asset) => {
-              const isUp = asset.change24hPercent >= 0;
-              return (
-                <div
-                  key={asset.id}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {/* Forex */}
+          <GlassPanel variant="default" padding="sm" className="space-y-2">
+            <div className="flex items-center justify-between px-2 py-1 text-xs text-[#92959D] font-tabular border-b border-white/[0.06]">
+              <span className="font-semibold uppercase tracking-wider text-[#F5F5F2]">Forex Pairs</span>
+              <span className="text-[10px]">SPOT FX</span>
+            </div>
+            <div className="space-y-1">
+              {forex.map((asset) => (
+                <button
+                  key={asset.symbol}
                   onClick={() => onSelectAsset(asset)}
-                  className="flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/[0.06] transition-colors cursor-pointer text-xs"
+                  className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.05] transition-all text-left font-tabular"
                 >
                   <div>
-                    <span className="font-bold text-white">{asset.symbol}</span>
-                    <span className="text-slate-400 text-[11px] ml-2">{asset.name}</span>
+                    <div className="font-semibold text-xs text-[#F5F5F2]">{asset.symbol}</div>
+                    <div className="text-[10px] text-[#5F636B]">{asset.name}</div>
                   </div>
                   <div className="text-right">
-                    <span className="font-bold text-slate-200">
-                      {asset.currentPrice.toFixed(asset.decimals)}
-                    </span>
-                    <span
-                      className={`ml-2 font-bold ${
-                        isUp ? "text-emerald-400" : "text-rose-400"
+                    <div className="text-xs font-semibold text-[#F5F5F2]">
+                      ${formatPrice(asset.currentPrice, 4, 5)}
+                    </div>
+                    <div
+                      className={`text-[10px] ${
+                        asset.change24hPercent >= 0 ? "text-emerald-400" : "text-rose-400"
                       }`}
                     >
-                      {isUp ? "+" : ""}
-                      {asset.change24hPercent}%
-                    </span>
+                      {formatPercent(asset.change24hPercent)}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                </button>
+              ))}
+            </div>
+          </GlassPanel>
+
+          {/* Commodities */}
+          <GlassPanel variant="default" padding="sm" className="space-y-2">
+            <div className="flex items-center justify-between px-2 py-1 text-xs text-[#92959D] font-tabular border-b border-white/[0.06]">
+              <span className="font-semibold uppercase tracking-wider text-[#F5F5F2]">Commodities</span>
+              <span className="text-[10px]">METALS & ENERGY</span>
+            </div>
+            <div className="space-y-1">
+              {commodities.map((asset) => (
+                <button
+                  key={asset.symbol}
+                  onClick={() => onSelectAsset(asset)}
+                  className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.05] transition-all text-left font-tabular"
+                >
+                  <div>
+                    <div className="font-semibold text-xs text-[#F5F5F2]">{asset.symbol}</div>
+                    <div className="text-[10px] text-[#5F636B]">{asset.name}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs font-semibold text-[#F5F5F2]">
+                      ${formatPrice(asset.currentPrice)}
+                    </div>
+                    <div
+                      className={`text-[10px] ${
+                        asset.change24hPercent >= 0 ? "text-emerald-400" : "text-rose-400"
+                      }`}
+                    >
+                      {formatPercent(asset.change24hPercent)}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </GlassPanel>
+
+          {/* Indices */}
+          <GlassPanel variant="default" padding="sm" className="space-y-2">
+            <div className="flex items-center justify-between px-2 py-1 text-xs text-[#92959D] font-tabular border-b border-white/[0.06]">
+              <span className="font-semibold uppercase tracking-wider text-[#F5F5F2]">Global Indices</span>
+              <span className="text-[10px]">BENCHMARKS</span>
+            </div>
+            <div className="space-y-1">
+              {indices.map((asset) => (
+                <button
+                  key={asset.symbol}
+                  onClick={() => onSelectAsset(asset)}
+                  className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.05] transition-all text-left font-tabular"
+                >
+                  <div>
+                    <div className="font-semibold text-xs text-[#F5F5F2]">{asset.symbol}</div>
+                    <div className="text-[10px] text-[#5F636B]">{asset.name}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs font-semibold text-[#F5F5F2]">
+                      ${formatPrice(asset.currentPrice)}
+                    </div>
+                    <div
+                      className={`text-[10px] ${
+                        asset.change24hPercent >= 0 ? "text-emerald-400" : "text-rose-400"
+                      }`}
+                    >
+                      {formatPercent(asset.change24hPercent)}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </GlassPanel>
+
+          {/* Crypto */}
+          <GlassPanel variant="default" padding="sm" className="space-y-2">
+            <div className="flex items-center justify-between px-2 py-1 text-xs text-[#92959D] font-tabular border-b border-white/[0.06]">
+              <span className="font-semibold uppercase tracking-wider text-[#F5F5F2]">Digital Assets</span>
+              <span className="text-[10px] text-emerald-400">LIVE L2 DOM</span>
+            </div>
+            <div className="space-y-1">
+              {crypto.map((asset) => (
+                <button
+                  key={asset.symbol}
+                  onClick={() => onSelectAsset(asset)}
+                  className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.05] transition-all text-left font-tabular"
+                >
+                  <div>
+                    <div className="font-semibold text-xs text-[#F5F5F2]">{asset.symbol}</div>
+                    <div className="text-[10px] text-[#5F636B]">{asset.name}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs font-semibold text-[#F5F5F2]">
+                      ${formatPrice(asset.currentPrice)}
+                    </div>
+                    <div
+                      className={`text-[10px] ${
+                        asset.change24hPercent >= 0 ? "text-emerald-400" : "text-rose-400"
+                      }`}
+                    >
+                      {formatPercent(asset.change24hPercent)}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </GlassPanel>
         </div>
       </div>
 
-      {/* Commodities & Crypto */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Commodities */}
-        <div className="terminal-glass rounded-lg p-4 border border-white/10 space-y-3">
-          <div className="flex justify-between items-center border-b border-white/10 pb-2">
-            <span className="text-xs font-bold text-white uppercase tracking-wider">
-              Commodities & Precious Metals
-            </span>
-            <span className="text-[10px] text-slate-400">COMEX / NYMEX Benchmarks</span>
-          </div>
-          <div className="space-y-1.5">
-            {commodities.map((asset) => {
-              const isUp = asset.change24hPercent >= 0;
-              return (
-                <div
-                  key={asset.id}
-                  onClick={() => onSelectAsset(asset)}
-                  className="flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/[0.06] transition-colors cursor-pointer text-xs"
-                >
-                  <div>
-                    <span className="font-bold text-white">{asset.symbol}</span>
-                    <span className="text-slate-400 text-[11px] ml-2">{asset.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-slate-200">
-                      {asset.currentPrice.toFixed(asset.decimals)}
-                    </span>
-                    <span
-                      className={`ml-2 font-bold ${
-                        isUp ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      {isUp ? "+" : ""}
-                      {asset.change24hPercent}%
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Crypto */}
-        <div className="terminal-glass rounded-lg p-4 border border-white/10 space-y-3">
-          <div className="flex justify-between items-center border-b border-white/10 pb-2">
-            <span className="text-xs font-bold text-white uppercase tracking-wider">
-              Digital Assets & Perpetual Swaps
-            </span>
-            <span className="text-[10px] text-slate-400">Spot & Perpetual Depth</span>
-          </div>
-          <div className="space-y-1.5">
-            {crypto.map((asset) => {
-              const isUp = asset.change24hPercent >= 0;
-              return (
-                <div
-                  key={asset.id}
-                  onClick={() => onSelectAsset(asset)}
-                  className="flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/[0.06] transition-colors cursor-pointer text-xs"
-                >
-                  <div>
-                    <span className="font-bold text-white">{asset.symbol}</span>
-                    <span className="text-slate-400 text-[11px] ml-2">{asset.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-slate-200">
-                      {asset.currentPrice.toFixed(asset.decimals)}
-                    </span>
-                    <span
-                      className={`ml-2 font-bold ${
-                        isUp ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      {isUp ? "+" : ""}
-                      {asset.change24hPercent}%
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Live Feeds: Macro Event Countdown + Wire Headlines */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Upcoming High-Impact Macro Releases */}
-        <div className="terminal-glass rounded-lg p-4 border border-white/10 space-y-3">
-          <div className="flex justify-between items-center border-b border-white/10 pb-2">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-bold text-white uppercase tracking-wider">
-                Impending High-Impact Releases
-              </span>
+      {/* 4. Macro Intelligence & News Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Upcoming Events */}
+        <GlassPanel variant="default" padding="md" className="space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#D4AF37]" />
+              <h3 className="text-xs font-semibold text-[#F5F5F2] uppercase font-tabular tracking-wider">
+                Imminent Sovereign Macro Events
+              </h3>
             </div>
-            <span className="text-[10px] text-slate-400">Countdown</span>
+            <span className="text-[10px] font-tabular text-[#92959D]">Forex Factory Feed</span>
           </div>
 
           <div className="space-y-2">
-            {upcomingEvents.slice(0, 3).map((event) => (
+            {upcomingEvents.slice(0, 4).map((evt, idx) => (
               <div
-                key={event.id}
-                className="p-2.5 rounded bg-white/[0.02] border border-white/5 space-y-1 text-xs"
+                key={idx}
+                className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between gap-3 font-tabular text-xs"
               >
-                <div className="flex justify-between items-center">
-                  <div className="font-bold text-white flex items-center space-x-1.5">
-                    <span className="px-1.5 py-0.2 rounded bg-white/10 text-sky-300 text-[10px]">
-                      {event.currency}
-                    </span>
-                    <span>{event.title}</span>
+                <div className="flex items-center gap-2.5">
+                  <span className="font-bold text-[#F5F5F2] w-10">{evt.currency}</span>
+                  <div>
+                    <div className="font-medium text-[#F5F5F2] line-clamp-1">{evt.title}</div>
+                    <div className="text-[10px] text-[#5F636B]">{evt.time} • {evt.date}</div>
                   </div>
-                  <span className="text-[10px] text-amber-400 font-bold">{event.time}</span>
                 </div>
-                <div className="text-[11px] text-slate-400 font-sans">
-                  Forecast: <strong className="text-slate-200">{event.forecast || "-"}</strong> |
-                  Previous: <strong className="text-slate-200">{event.previous || "-"}</strong>
-                </div>
+                <GlassCapsule
+                  variant={evt.importance === "critical" ? "bear" : evt.importance === "high" ? "amber" : "neutral"}
+                  size="xs"
+                >
+                  {evt.importance.toUpperCase()}
+                </GlassCapsule>
               </div>
             ))}
           </div>
-        </div>
+        </GlassPanel>
 
-        {/* Wire Headlines */}
-        <div className="terminal-glass rounded-lg p-4 border border-white/10 space-y-3">
-          <div className="flex justify-between items-center border-b border-white/10 pb-2">
-            <div className="flex items-center space-x-2">
-              <Newspaper className="w-4 h-4 text-sky-400" />
-              <span className="text-xs font-bold text-white uppercase tracking-wider">
-                Institutional Macro Wire
-              </span>
+        {/* Top Intelligence News */}
+        <GlassPanel variant="default" padding="md" className="space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <Newspaper className="w-4 h-4 text-[#38BDF8]" />
+              <h3 className="text-xs font-semibold text-[#F5F5F2] uppercase font-tabular tracking-wider">
+                Financial News & Sentiment Intelligence
+              </h3>
             </div>
-            <span className="text-[10px] text-slate-400">Real-Time</span>
+            <span className="text-[10px] font-tabular text-[#92959D]">Finnhub + NLP</span>
           </div>
 
           <div className="space-y-2">
-            {topNews.slice(0, 3).map((item) => (
+            {topNews.slice(0, 4).map((item, idx) => (
               <div
-                key={item.id}
-                className="p-2.5 rounded bg-white/[0.02] border border-white/5 space-y-1 text-xs"
+                key={idx}
+                className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between gap-3 text-xs"
               >
-                <div className="flex justify-between items-center text-[10px]">
-                  <span className="text-sky-400 font-semibold">{item.source}</span>
-                  <span className="text-slate-500">
-                    {new Date(item.publishedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </span>
+                <div>
+                  <div className="font-medium text-[#F5F5F2] line-clamp-1 font-sans">{item.headline}</div>
+                  <div className="text-[10px] text-[#5F636B] font-tabular mt-0.5">
+                    {item.source} • {new Date(item.timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
-                <div className="font-bold text-white leading-tight font-sans text-xs">
-                  {item.headline}
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  Impact: <span className="text-emerald-400 uppercase font-bold">{item.sentiment.bias}</span> on {item.affectedAssets.slice(0, 3).join(", ")}
-                </div>
+                <GlassCapsule
+                  variant={item.sentiment.bias === "bullish" ? "bull" : item.sentiment.bias === "bearish" ? "bear" : "neutral"}
+                  size="xs"
+                >
+                  {item.sentiment.bias}
+                </GlassCapsule>
               </div>
             ))}
           </div>
-        </div>
+        </GlassPanel>
       </div>
     </div>
   );
 }
-

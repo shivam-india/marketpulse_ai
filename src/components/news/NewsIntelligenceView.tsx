@@ -8,10 +8,12 @@ import {
   TrendingDown,
   Clock,
   ExternalLink,
-  ShieldAlert,
   Search,
   Filter,
+  Sparkles,
 } from "lucide-react";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { GlassCapsule } from "@/components/ui/GlassCapsule";
 
 export function NewsIntelligenceView() {
   const [news, setNews] = useState<MarketNewsItem[]>([]);
@@ -22,7 +24,7 @@ export function NewsIntelligenceView() {
   useEffect(() => {
     async function loadNews() {
       try {
-        const res = await fetch("/api/news?limit=15");
+        const res = await fetch("/api/news?limit=20");
         const json = await res.json();
         if (json.success && json.data) {
           setNews(json.data);
@@ -49,163 +51,140 @@ export function NewsIntelligenceView() {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Top Banner */}
-      <div className="terminal-glass rounded-lg p-4 border border-white/10 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded bg-sky-500/10 border border-sky-500/30 text-sky-400">
-            <Newspaper className="w-5 h-5" />
+      <GlassPanel variant="default" padding="md" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#D4AF37]/15 border border-[#D4AF37]/35 flex items-center justify-center text-[#E5C07B]">
+              <Newspaper className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-semibold text-[#F5F5F2] tracking-tight">
+                  Global Financial News & Intelligence Feed
+                </h1>
+                <GlassCapsule variant="champagne" size="xs">
+                  NLP SENTIMENT
+                </GlassCapsule>
+              </div>
+              <p className="text-xs text-[#92959D] mt-0.5">
+                Evaluates macroeconomic impact, currency sensitivity, and institutional catalyst positioning.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center space-x-2">
-              <span>Global Market News & Sentiment Engine</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                LIVE FEED • FINNHUB & NEWSAPI
-              </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/30">
-                AI NLP PARSER
-              </span>
-            </h2>
-            <p className="text-xs text-slate-400">
-              Evaluates macroeconomic impact, currency sensitivity, and contextual positioning.
-            </p>
+
+          {/* Search Input */}
+          <div className="relative w-72">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#5F636B]" />
+            <input
+              type="text"
+              placeholder="Filter headlines & catalysts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white/[0.04] text-xs text-[#F5F5F2] font-tabular pl-8 pr-3 py-1.5 rounded-xl border border-white/[0.08] focus:outline-none focus:border-[#D4AF37]/50 placeholder:text-[#5F636B]"
+            />
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative w-64">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search news intelligence..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#0d1424] text-xs font-mono text-slate-200 pl-8 pr-3 py-1.5 rounded border border-white/10 focus:outline-none focus:border-sky-500"
-          />
+        {/* Sentiment Filter Tabs */}
+        <div className="flex items-center gap-2 pt-2 border-t border-white/[0.06] font-tabular text-xs">
+          <span className="text-[#5F636B] text-[11px] uppercase font-semibold mr-1">Sentiment:</span>
+          {["all", "bullish", "bearish", "neutral"].map((sent) => (
+            <button
+              key={sent}
+              onClick={() => setFilterSentiment(sent)}
+              className={`px-3 py-1 rounded-xl capitalize font-medium transition-all ${
+                filterSentiment === sent
+                  ? "bg-white/[0.14] text-[#F5F5F2] border border-white/[0.2]"
+                  : "text-[#92959D] hover:text-[#F5F5F2] hover:bg-white/[0.04]"
+              }`}
+            >
+              {sent}
+            </button>
+          ))}
         </div>
-      </div>
+      </GlassPanel>
 
-      {/* Filter Options */}
-      <div className="flex items-center space-x-2 p-2.5 rounded bg-[#090e18] border border-white/5 font-mono text-xs">
-        <span className="text-slate-500 text-[10px] uppercase font-semibold mr-1">Sentiment Filter:</span>
-        {["all", "bullish", "bearish", "neutral"].map((sent) => (
-          <button
-            key={sent}
-            onClick={() => setFilterSentiment(sent)}
-            className={`px-2.5 py-0.5 rounded capitalize transition-colors text-[11px] ${
-              filterSentiment === sent
-                ? "bg-sky-500 text-white font-bold"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            {sent}
-          </button>
-        ))}
-      </div>
-
-      {/* News Feed Grid */}
-      <div className="space-y-3">
-        {filteredNews.length === 0 ? (
-          <div className="terminal-glass rounded-lg p-12 border border-white/10 text-center font-mono space-y-2">
-            <Newspaper className="w-8 h-8 text-slate-500 mx-auto" />
-            <div className="text-sm font-bold text-slate-300">Live data unavailable</div>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              No live market headlines found matching the current search query or sentiment filter.
-            </p>
+      {/* Editorial News Feed */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {loading ? (
+          <div className="col-span-2 p-8 text-center text-xs text-[#5F636B] font-tabular">
+            Loading real-time news intelligence...
+          </div>
+        ) : filteredNews.length === 0 ? (
+          <div className="col-span-2 p-8 text-center text-xs text-[#5F636B] font-tabular">
+            No headlines match the current filter.
           </div>
         ) : (
           filteredNews.map((item) => {
-          const isBull = item.sentiment.bias === "bullish";
-          const isBear = item.sentiment.bias === "bearish";
+            const isBull = item.sentiment.bias === "bullish";
+            const isBear = item.sentiment.bias === "bearish";
 
-          return (
-            <div
-              key={item.id}
-              className="terminal-glass rounded-lg p-4 border border-white/10 space-y-3 font-mono hover:border-white/20 transition-all"
-            >
-              {/* Meta & Headline */}
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                      isBull
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : isBear
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                        : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                    }`}
-                  >
-                    {item.sentiment.bias} IMPACT (SCORE: {item.sentiment.score > 0 ? "+" : ""}
-                    {item.sentiment.score})
-                  </span>
-
-                  <span className="text-[11px] text-slate-400">{item.source}</span>
-                </div>
-
-                <div className="flex items-center space-x-1 text-[10px] text-slate-500">
-                  <Clock className="w-3 h-3" />
-                  <span>{new Date(item.publishedAt).toLocaleTimeString()}</span>
-                </div>
-              </div>
-
-              {/* Headline */}
-              <h3 className="text-sm font-bold text-white leading-snug">
-                {item.headline}
-              </h3>
-
-              {/* Summary */}
-              <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                {item.summary}
-              </p>
-
-              {/* Impact Box */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2.5 rounded bg-black/40 border border-white/5 text-[11px]">
+            return (
+              <GlassPanel
+                key={item.id}
+                variant="interactive"
+                padding="md"
+                className="flex flex-col justify-between space-y-3"
+              >
                 <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-semibold block">
-                    Expected Short-Term Market Impact:
-                  </span>
-                  <span className="text-slate-200">{item.expectedImpact.shortTerm}</span>
-                </div>
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2 text-[11px] font-tabular text-[#5F636B]">
+                      <span className="font-semibold text-[#E5C07B]">{item.source}</span>
+                      <span>•</span>
+                      <span>
+                        {new Date(item.timestamp * 1000).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
 
-                <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-semibold block">
-                    Positioning Context:
-                  </span>
-                  <span className="text-slate-200">{item.expectedImpact.context}</span>
-                </div>
-              </div>
-
-              {/* Affected Tags */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5 text-[11px]">
-                <div className="flex items-center space-x-1.5">
-                  <span className="text-[10px] text-slate-500 uppercase">Affected Assets:</span>
-                  {item.affectedAssets.map((asset) => (
-                    <span
-                      key={asset}
-                      className="px-1.5 py-0.2 rounded bg-white/5 text-slate-300 font-bold border border-white/5"
+                    <GlassCapsule
+                      variant={isBull ? "bull" : isBear ? "bear" : "neutral"}
+                      size="xs"
                     >
-                      {asset}
-                    </span>
-                  ))}
+                      {item.sentiment.bias}
+                    </GlassCapsule>
+                  </div>
+
+                  <h3 className="text-sm font-semibold text-[#F5F5F2] leading-snug font-sans hover:text-[#E5C07B] transition-colors">
+                    {item.headline}
+                  </h3>
+
+                  <p className="text-xs text-[#92959D] leading-relaxed mt-2 line-clamp-3 font-sans">
+                    {item.summary}
+                  </p>
                 </div>
 
-                <div className="flex items-center space-x-1.5">
-                  <span className="text-[10px] text-slate-500 uppercase">Currencies:</span>
-                  {item.affectedCurrencies.map((curr) => (
-                    <span
-                      key={curr}
-                      className="px-1.5 py-0.2 rounded bg-sky-500/10 text-sky-400 font-bold"
+                <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-tabular">
+                  <div className="flex items-center gap-2 text-[#5F636B]">
+                    <span>Score: <strong className="text-[#F5F5F2]">{item.sentiment.score > 0 ? "+" : ""}{item.sentiment.score.toFixed(2)}</strong></span>
+                    {item.affectedAssets && item.affectedAssets.length > 0 && (
+                      <span className="text-[#92959D] truncate max-w-[140px]">
+                        [{item.affectedAssets.join(", ")}]
+                      </span>
+                    )}
+                  </div>
+
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-[#D4AF37] hover:underline"
                     >
-                      {curr}
-                    </span>
-                  ))}
+                      <span>Read Original</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
                 </div>
-              </div>
-            </div>
-          );
-        }))}
+              </GlassPanel>
+            );
+          })
+        )}
       </div>
     </div>
   );
 }
-
